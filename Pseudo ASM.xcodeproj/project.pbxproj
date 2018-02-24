@@ -232,8 +232,18 @@
 		454B2B4E2042214000D94D6A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QY44MADGVC;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wall",
+					"-Wextra",
+					"-Weffc++",
+					"-Wpedantic",
+					"-Wextra-semi",
+					"-Wno-documentation",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -241,8 +251,18 @@
 		454B2B4F2042214000D94D6A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QY44MADGVC;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wall",
+					"-Wextra",
+					"-Weffc++",
+					"-Wpedantic",
+					"-Wextra-semi",
+					"-Wno-documentation",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
