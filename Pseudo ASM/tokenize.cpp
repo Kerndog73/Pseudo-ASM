@@ -23,7 +23,7 @@ bool space(const char c) {
 }
 
 bool operand(const char c) {
-  return isalnum(c);
+  return isalnum(c) || c == '-';
 }
 
 std::vector<Token> tokenize(const std::string_view source) {
