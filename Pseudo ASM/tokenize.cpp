@@ -49,14 +49,16 @@ std::vector<Token> tokenize(const std::string_view source) try {
     } else {
       tokens.push_back({TokenType::INSTRUCTION, {begin, size}, pos.line(), pos.col()});
       
+      pos = str.lineCol();
       while (!str.check('\n') && !str.empty()) {
-        pos = str.lineCol();
         begin = str.data();
         str.expect(operand, "operand").skip(operand);
         size = str.data() - begin;
         tokens.push_back({TokenType::OPERAND, {begin, size}, pos.line(), pos.col()});
         str.skip(space);
+        pos = str.lineCol();
       }
+      tokens.push_back({TokenType::END_OP, {str.data() - 1, 0}, pos.line(), pos.col()});
     }
   }
   

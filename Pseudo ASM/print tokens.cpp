@@ -20,6 +20,8 @@ void printToken(std::ostream &stream, const Token token) {
     case TokenType::OPERAND:
       stream << "Operand         ";
       break;
+    case TokenType::END_OP:
+      stream << "End operand     ";
   }
 
   stream << token.line << ':' << token.col << '\t';

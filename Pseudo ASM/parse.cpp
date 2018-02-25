@@ -121,6 +121,10 @@ IR parseToken(const TokenType type, const std::string_view str) {
         return parseRegisterOp(str);
       }
       return parseLabelOp(str);
+    case TokenType::END_OP:
+      IR ir;
+      ir.type = IRType::END_OP;
+      return ir;
   }
 }
 
@@ -128,12 +132,16 @@ std::vector<IR> parse(const std::vector<Token> &tokens) {
   std::vector<IR> irs;
   
   for (auto t = tokens.cbegin(); t != tokens.cend(); ++t) {
+    IR ir;
     try {
-      irs.push_back(parseToken(t->type, t->str));
+      ir = parseToken(t->type, t->str);
     } catch (std::string_view &e) {
       std::cerr << t->line << ':' << t->col << ' ' << e << " \"" << t->str << "\"\n";
       return {};
     }
+    ir.line = t->line;
+    ir.col = t->col;
+    irs.push_back(ir);
   }
   
   return irs;

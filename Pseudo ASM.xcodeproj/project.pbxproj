@@ -11,6 +11,7 @@
 		454B2B552042251A00D94D6A /* tokenize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B532042251A00D94D6A /* tokenize.cpp */; };
 		454B2B5820423C3600D94D6A /* print tokens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B5620423C3600D94D6A /* print tokens.cpp */; };
 		454B2B5F20424E7700D94D6A /* parse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B5D20424E7700D94D6A /* parse.cpp */; };
+		454B2B6320426F6900D94D6A /* validate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B6120426F6900D94D6A /* validate.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,8 @@
 		454B2B5D20424E7700D94D6A /* parse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = parse.cpp; sourceTree = "<group>"; };
 		454B2B5E20424E7700D94D6A /* parse.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = parse.hpp; sourceTree = "<group>"; };
 		454B2B6020424E9B00D94D6A /* ir.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ir.hpp; sourceTree = "<group>"; };
+		454B2B6120426F6900D94D6A /* validate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = validate.cpp; sourceTree = "<group>"; };
+		454B2B6220426F6900D94D6A /* validate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = validate.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +68,8 @@
 				454B2B5720423C3600D94D6A /* print tokens.hpp */,
 				454B2B5D20424E7700D94D6A /* parse.cpp */,
 				454B2B5E20424E7700D94D6A /* parse.hpp */,
+				454B2B6120426F6900D94D6A /* validate.cpp */,
+				454B2B6220426F6900D94D6A /* validate.hpp */,
 			);
 			path = "Pseudo ASM";
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 			files = (
 				454B2B5F20424E7700D94D6A /* parse.cpp in Sources */,
 				454B2B4A2042214000D94D6A /* main.cpp in Sources */,
+				454B2B6320426F6900D94D6A /* validate.cpp in Sources */,
 				454B2B552042251A00D94D6A /* tokenize.cpp in Sources */,
 				454B2B5820423C3600D94D6A /* print tokens.cpp in Sources */,
 			);

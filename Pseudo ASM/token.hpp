@@ -14,7 +14,8 @@
 enum class TokenType {
   INSTRUCTION,
   LABEL,
-  OPERAND
+  OPERAND,
+  END_OP
 };
 
 struct Token {

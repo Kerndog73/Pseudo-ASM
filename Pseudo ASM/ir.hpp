@@ -10,14 +10,15 @@
 #define ir_hpp
 
 #include <cstdint>
-#include <string_view>
+#include <cstddef>
 
 enum class IRType : uint8_t {
   INSTRUCTION,
   LABEL,
   OP_REGISTER,
   OP_LABEL,
-  OP_NUM
+  OP_NUM,
+  END_OP
 };
 
 enum class Instr : uint8_t {
@@ -47,6 +48,7 @@ enum class Instr : uint8_t {
   JMP,
   CALL,
   RET,
+  SYSCALL,
   
   // stack
   PUSH,
@@ -84,6 +86,8 @@ struct IR {
     Register reg;
     NumberLiteral num;
   };
+  unsigned line;
+  unsigned col;
 };
 
 #endif
