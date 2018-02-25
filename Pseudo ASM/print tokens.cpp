@@ -8,20 +8,28 @@
 
 #include "print tokens.hpp"
 
+void printToken(std::ostream &stream, const Token token) {
+  switch (token.type) {
+    case TokenType::INSTRUCTION:
+      // padding to a multiple of 8
+      stream << "Instruction     ";
+      break;
+    case TokenType::LABEL:
+      stream << "Label           ";
+      break;
+    case TokenType::OPERAND:
+      stream << "Operand         ";
+      break;
+  }
+
+  stream << token.line << ':' << token.col << '\t';
+
+  stream << '"' << token.str << '"';
+}
+
 void printTokens(std::ostream &stream, const std::vector<Token> &tokens) {
   for (auto t = tokens.cbegin(); t != tokens.cend(); ++t) {
-    switch (t->type) {
-      case TokenType::INSTRUCTION:
-        stream << "Instruction ";
-        break;
-      case TokenType::LABEL:
-        stream << "Label       ";
-        break;
-      case TokenType::OPERAND:
-        stream << "Operand     ";
-        break;
-    }
-    
-    stream << '"' << t->str << "\"\n";
+    printToken(stream, *t);
+    stream << '\n';
   }
 }

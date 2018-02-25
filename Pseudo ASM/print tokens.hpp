@@ -13,6 +13,7 @@
 #include <iostream>
 #include "token.hpp"
 
+void printToken(std::ostream &, Token);
 void printTokens(std::ostream &, const std::vector<Token> &);
 
 #endif

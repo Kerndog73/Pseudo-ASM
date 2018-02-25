@@ -20,6 +20,8 @@ enum class TokenType {
 struct Token {
   TokenType type;
   std::string_view str;
+  unsigned line;
+  unsigned col;
 };
 
 #endif
