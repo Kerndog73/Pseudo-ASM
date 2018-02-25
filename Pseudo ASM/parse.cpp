@@ -28,14 +28,14 @@ const std::string_view instrs[] = {
 };
 
 bool isRegister(const std::string_view str) {
-  return std::find(std::cbegin(registers), std::cend(registers), str);
+  return std::find(std::cbegin(registers), std::cend(registers), str) != std::cend(registers);
 }
 
 IR parseInstr(const std::string_view str) {
   const std::string_view *instr = std::find(
     std::cbegin(instrs), std::cend(instrs), str
   );
-  if (instr == nullptr) {
+  if (instr == std::cend(instrs)) {
     throw "Invalid instruction"sv;
   }
   IR ir;

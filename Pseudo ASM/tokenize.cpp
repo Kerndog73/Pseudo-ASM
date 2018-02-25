@@ -8,6 +8,7 @@
 
 #include "tokenize.hpp"
 
+#include <iostream>
 #include <Simpleton/Utils/parse string.hpp>
 
 bool beginIdentifier(const char c) {
@@ -26,7 +27,7 @@ bool operand(const char c) {
   return isalnum(c) || c == '-';
 }
 
-std::vector<Token> tokenize(const std::string_view source) {
+std::vector<Token> tokenize(const std::string_view source) try {
   Utils::ParseString str = {source.data(), source.size()};
   std::vector<Token> tokens;
   
@@ -60,4 +61,7 @@ std::vector<Token> tokenize(const std::string_view source) {
   }
   
   return tokens;
+} catch (std::exception &e) {
+  std::cerr << e.what() << '\n';
+  return {};
 }
