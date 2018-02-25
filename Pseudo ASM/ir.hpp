@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include "token.hpp"
 
 enum class IRType : uint8_t {
   INSTRUCTION,
@@ -86,8 +87,7 @@ struct IR {
     Register reg;
     NumberLiteral num;
   };
-  unsigned line;
-  unsigned col;
+  Token token;
 };
 
 #endif

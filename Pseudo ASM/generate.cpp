@@ -32,9 +32,9 @@ typedef struct {
   size_t capacity;
 } Stack;
 
-Stack stack_alloc(const size_t capacity) {
+static Stack stack_alloc(const size_t capacity) {
   Stack stack;
-  stack.mem = malloc(capacity);
+  stack.mem = (uint8_t *)malloc(capacity);
   if (stack.mem == NULL) {
     printf("Failed to allocate %zu bytes\n", capacity);
     exit(1);
@@ -44,14 +44,14 @@ Stack stack_alloc(const size_t capacity) {
   return stack;
 }
 
-void stack_free(const Stack stack) {
+static void stack_free(const Stack stack) {
   free(stack.mem);
 }
 
-void stack_growToFit(Stack *const stack, const size_t extra) {
+static void stack_growToFit(Stack *const stack, const size_t extra) {
   if (extra > stack->capacity - stack->size) {
     stack->capacity = stack->capacity * 2;
-    stack->mem = realloc(stack->mem, stack->capacity);
+    stack->mem = (uint8_t *)realloc(stack->mem, stack->capacity);
     if (stack->mem == NULL) {
       printf("Failed to allocate %zu bytes\n", stack->capacity);
       exit(1);
@@ -59,13 +59,13 @@ void stack_growToFit(Stack *const stack, const size_t extra) {
   }
 }
 
-void stack_push(Stack *const stack, const void *const src, const size_t size) {
+static void stack_push(Stack *const stack, const void *const src, const size_t size) {
   stack_growToFit(stack, size);
   memcpy(stack->mem + stack->size, src, size);
   stack->size += size;
 }
 
-void stack_pop(Stack *const stack, void *const dst, const size_t size) {
+static void stack_pop(Stack *const stack, void *const dst, const size_t size) {
   if (stack->size < size) {
     printf("Stackunderflow.com\n");
     exit(1);
@@ -137,8 +137,19 @@ std::ostream &operator<<(std::ostream &out, const Label label) {
   return out << std::string_view(label.data, label.size);
 }
 
+void printInstrTokens(std::ostream &out, IRIter i) {
+  out << i->token.line << ':' << i->token.col << ' ';
+  do {
+    out << i->token.str;
+    out << ' ';
+    ++i;
+  } while (i->type != IRType::END_OP);
+  out << '\n';
+}
+
 void genInstr(std::ostream &out, IRIter &i) {
-  out << instrIndent << "// " << i->line << ':' << i->col << '\n';
+  out << instrIndent << "// ";
+  printInstrTokens(out, i);
   out << instrIndent;
   const Instr instr = (i++)->instr;
   switch (instr) {
@@ -223,7 +234,7 @@ void genInstr(std::ostream &out, IRIter &i) {
 }
 
 void genLabel(std::ostream &out, IRIter &i) {
-  out << "// " << i->line << ':' << i->col << '\n';
+  out << "// " << i->token.line << ':' << i->token.col << '\n';
   out << "LABEL_" << std::string_view(i->label.data, i->label.size) << ":\n";
   ++i;
 }

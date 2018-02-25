@@ -22,13 +22,11 @@ int main(int argc, const char **argv) {
   
   const Memory::Buffer source = Memory::readFile(argv[1]);
   std::vector<Token> tokens = tokenize({source.cdata<char>(), source.size()});
-  //printTokens(std::cout, tokens);
   std::vector<IR> irs = parse(tokens);
   if (validate(irs)) {
-    std::cout << "Valid\n";
+    std::ofstream file("out.c");
+    generate(file, irs);
   }
-  std::ofstream file("out.c");
-  generate(file, irs);
-  
+
   return 0;
 }

@@ -112,7 +112,8 @@ bool validate(const std::vector<IR> &irs) {
         break;
       case IRType::OP_LABEL:
         if (labels.count({i->label.data, i->label.size}) == 0) {
-          std::cerr << i->line << ':' << i->col << ' ' << "Unknown label name \""
+          std::cerr << i->token.line << ':' << i->token.col << ' '
+            << "Unknown label name \""
             << std::string_view(i->label.data, i->label.size) << "\"\n";
           ok = false;
         }
@@ -123,7 +124,8 @@ bool validate(const std::vector<IR> &irs) {
         try {
           validateInstr(lastInstr, i);
         } catch (std::string_view &e) {
-          std::cerr << lastInstr->line << ':' << lastInstr->col << ' ' << e << '\n';
+          std::cerr << lastInstr->token.line << ':' << lastInstr->token.col
+            << ' ' << e << '\n';
           ok = false;
         }
         break;

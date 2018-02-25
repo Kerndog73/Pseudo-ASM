@@ -142,8 +142,7 @@ std::vector<IR> parse(const std::vector<Token> &tokens) {
       std::cerr << t->line << ':' << t->col << ' ' << e << " \"" << t->str << "\"\n";
       return {};
     }
-    ir.line = t->line;
-    ir.col = t->col;
+    ir.token = *t;
     irs.push_back(ir);
   }
   
