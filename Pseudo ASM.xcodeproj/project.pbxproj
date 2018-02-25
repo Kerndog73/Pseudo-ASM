@@ -13,18 +13,6 @@
 		454B2B5820423C3600D94D6A /* print tokens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B5620423C3600D94D6A /* print tokens.cpp */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		454B2B442042214000D94D6A /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		454B2B462042214000D94D6A /* Pseudo ASM */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Pseudo ASM"; sourceTree = BUILT_PRODUCTS_DIR; };
 		454B2B492042214000D94D6A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -86,7 +74,7 @@
 			buildPhases = (
 				454B2B422042214000D94D6A /* Sources */,
 				454B2B432042214000D94D6A /* Frameworks */,
-				454B2B442042214000D94D6A /* CopyFiles */,
+				454B2B5920423E8600D94D6A /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -128,6 +116,22 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		454B2B5920423E8600D94D6A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "cp \"$BUILT_PRODUCTS_DIR/$TARGET_NAME\" /usr/local/bin/pseudoasm";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		454B2B422042214000D94D6A /* Sources */ = {

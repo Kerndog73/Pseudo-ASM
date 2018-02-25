@@ -37,27 +37,22 @@ std::vector<Token> tokenize(const std::string_view source) {
       continue;
     }
     
-    if (str.check(beginIdentifier)) {
-      // could be label or instruction
-      const char *begin = str.data() - 1;
-      str.skip(identifer);
-      size_t size = str.data() - begin;
-      str.skip(space);
-      if (str.check(':')) {
-        tokens.push_back({TokenType::LABEL, {begin, size}});
-      } else {
-        tokens.push_back({TokenType::INSTRUCTION, {begin, size}});
-        
-        do {
-          begin = str.data();
-          str.expect(operand, "operand character").skip(operand);
-          size = str.data() - begin;
-          tokens.push_back({TokenType::OPERAND, {begin, size}});
-          str.skip(space);
-          if (str.check('\n') || str.empty()) {
-            break;
-          }
-        } while (true);
+    str.expect(beginIdentifier, "identifier");
+    const char *begin = str.data() - 1;
+    str.skip(identifer);
+    size_t size = str.data() - begin;
+    str.skip(space);
+    if (str.check(':')) {
+      tokens.push_back({TokenType::LABEL, {begin, size}});
+    } else {
+      tokens.push_back({TokenType::INSTRUCTION, {begin, size}});
+      
+      while (!str.check('\n') && !str.empty()) {
+        begin = str.data();
+        str.expect(operand, "operand").skip(operand);
+        size = str.data() - begin;
+        tokens.push_back({TokenType::OPERAND, {begin, size}});
+        str.skip(space);
       }
     }
   }

@@ -22,6 +22,6 @@ void printTokens(std::ostream &stream, const std::vector<Token> &tokens) {
         break;
     }
     
-    stream << t->str << '\n';
+    stream << '"' << t->str << "\"\n";
   }
 }
