@@ -8,6 +8,7 @@
 
 #include "parse.hpp"
 
+#include <cassert>
 #include <iostream>
 
 using namespace std::string_view_literals;
@@ -87,6 +88,8 @@ IR parseRegisterOp(const std::string_view str) {
     ir.reg.size = Register::WORD;
   } else if (str.back() == 'b') {
     ir.reg.size = Register::BYTE;
+  } else {
+    assert(false);
   }
   return ir;
 }
