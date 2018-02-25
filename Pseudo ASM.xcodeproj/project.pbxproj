@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		454B2B4A2042214000D94D6A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B492042214000D94D6A /* main.cpp */; };
 		454B2B522042236B00D94D6A /* token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B502042236B00D94D6A /* token.cpp */; };
+		454B2B552042251A00D94D6A /* tokenize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 454B2B532042251A00D94D6A /* tokenize.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,8 @@
 		454B2B492042214000D94D6A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		454B2B502042236B00D94D6A /* token.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = token.cpp; sourceTree = "<group>"; };
 		454B2B512042236B00D94D6A /* token.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = token.hpp; sourceTree = "<group>"; };
+		454B2B532042251A00D94D6A /* tokenize.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tokenize.cpp; sourceTree = "<group>"; };
+		454B2B542042251A00D94D6A /* tokenize.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tokenize.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +66,8 @@
 				454B2B492042214000D94D6A /* main.cpp */,
 				454B2B502042236B00D94D6A /* token.cpp */,
 				454B2B512042236B00D94D6A /* token.hpp */,
+				454B2B532042251A00D94D6A /* tokenize.cpp */,
+				454B2B542042251A00D94D6A /* tokenize.hpp */,
 			);
 			path = "Pseudo ASM";
 			sourceTree = "<group>";
@@ -125,6 +130,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				454B2B4A2042214000D94D6A /* main.cpp in Sources */,
+				454B2B552042251A00D94D6A /* tokenize.cpp in Sources */,
 				454B2B522042236B00D94D6A /* token.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -241,6 +247,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QY44MADGVC;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-Wall",
@@ -260,6 +267,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QY44MADGVC;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-Wall",
