@@ -30,6 +30,7 @@
 		454B2B6220426F6900D94D6A /* validate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = validate.hpp; sourceTree = "<group>"; };
 		454B2B642042841200D94D6A /* generate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = generate.cpp; sourceTree = "<group>"; };
 		454B2B652042841200D94D6A /* generate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = generate.hpp; sourceTree = "<group>"; };
+		454B2B6720466FE400D94D6A /* opcodes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = opcodes.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +76,7 @@
 				454B2B6220426F6900D94D6A /* validate.hpp */,
 				454B2B642042841200D94D6A /* generate.cpp */,
 				454B2B652042841200D94D6A /* generate.hpp */,
+				454B2B6720466FE400D94D6A /* opcodes.hpp */,
 			);
 			path = "Pseudo ASM";
 			sourceTree = "<group>";
