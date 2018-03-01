@@ -33,15 +33,16 @@ enum class RegSize : uint8_t {
   HIGH = 0b11
 };
 
-// least significant 4 bits
-//   RegCode
-//   removing the IP register will make this 3 bits
-// next least significant 2 bits
-//   RegSize
-// this leaves 2 unused bits
 using RegByte = uint8_t;
 
-// 6 bits
+inline RegByte makeRegByte(const RegCode reg, const RegSize size) {
+  return
+    static_cast<RegByte>(size) << 4
+    | static_cast<RegByte>(reg)
+  ;
+}
+
+// 5 bits (26 operations)
 enum class OpCode : uint8_t {
   //copies
   MOV, // copy a register or a constant into a register
@@ -88,24 +89,33 @@ enum class OpCode : uint8_t {
   POP
 };
 
+// 1 bit
+enum class DstOp : uint8_t {
+  REG,
+  CON
+};
 
-// most significant bit
-//   0 (first operand is reg)
-//   1 (first operand is constant)
-// next 2 most significant bits
-//   00 (no second operand)
-//   01 (second operand is reg)
-//   10 (second operand is constant)
-// 6 least significant bits
-//   OpCode
-//   there are 26 OpCodes currently so only 5 bits are needed
+// 2 bits
+enum class SrcOp : uint8_t {
+  NONE,
+  REG,
+  CON
+};
+
 using OpByte = uint8_t;
 
-// the next byte is the RegCode for the desination operand
-// the next word is either
-//   padding (no second operand)
-//   RegCode byte + padding byte (second operand is reg)
-//   byte constant + padding byte (second operand is byte constant)
-//   word constant (second operand is word constant)
+inline OpByte makeOpByte(const DstOp first, const SrcOp sec, const OpCode op) {
+  return
+    static_cast<OpByte>(first) << 7
+    | static_cast<OpByte>(sec) << 5
+    | static_cast<OpByte>(op)
+  ;
+}
+
+struct Instruction {
+  OpByte op;
+  RegCode dst;
+  uint16_t src;
+};
 
 #endif
