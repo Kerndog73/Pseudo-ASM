@@ -1,15 +1,18 @@
 //
-//  opcodes.hpp
+//  bytecode.hpp
 //  Pseudo ASM
 //
 //  Created by Indi Kernick on 28/2/18.
 //  Copyright © 2018 Indi Kernick. All rights reserved.
 //
 
-#ifndef opcodes_hpp
-#define opcodes_hpp
+#ifndef bytecode_hpp
+#define bytecode_hpp
 
 #include <cstdint>
+
+using Byte = uint8_t;
+using Word = uint16_t;
 
 // 4 bits
 enum class RegCode : uint8_t {
@@ -33,7 +36,7 @@ enum class RegSize : uint8_t {
   HIGH = 0b11
 };
 
-using RegByte = uint8_t;
+using RegByte = Byte;
 
 inline RegByte makeRegByte(const RegCode reg, const RegSize size) {
   return
@@ -102,7 +105,7 @@ enum class SrcOp : uint8_t {
   CON
 };
 
-using OpByte = uint8_t;
+using OpByte = Byte;
 
 inline OpByte makeOpByte(const DstOp first, const SrcOp sec, const OpCode op) {
   return
@@ -115,7 +118,7 @@ inline OpByte makeOpByte(const DstOp first, const SrcOp sec, const OpCode op) {
 struct Instruction {
   OpByte op;
   RegCode dst;
-  uint16_t src;
+  Word src;
 };
 
 #endif
