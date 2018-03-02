@@ -45,6 +45,14 @@ inline RegByte makeRegByte(const RegCode reg, const RegSize size) {
   ;
 }
 
+inline RegSize getRegSize(const RegByte byte) {
+  return static_cast<RegSize>((byte >> 4) & 0b11);
+}
+
+inline RegCode getRegCode(const RegByte byte) {
+  return static_cast<RegCode>(byte & 0b1111);
+}
+
 // 5 bits (26 operations)
 enum class OpCode : uint8_t {
   //copies
@@ -115,10 +123,29 @@ inline OpByte makeOpByte(const DstOp first, const SrcOp sec, const OpCode op) {
   ;
 }
 
+inline DstOp getDstOp(const OpByte byte) {
+  return static_cast<DstOp>(byte >> 7);
+}
+
+inline SrcOp getSrcOp(const OpByte byte) {
+  return static_cast<SrcOp>((byte >> 5) & 0b11);
+}
+
+inline OpCode getOpCode(const OpByte byte) {
+  return static_cast<OpCode>(byte & 0b11111);
+}
+
 struct Instruction {
   OpByte op;
-  RegCode dst;
-  Word src;
+  RegByte dst;
+  union {
+    Word w;
+    struct {
+      // assumes little endian
+      Byte l;
+      Byte h;
+    };
+  } src;
 };
 
 #endif
