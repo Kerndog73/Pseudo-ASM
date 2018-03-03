@@ -14,6 +14,9 @@
 using Byte = uint8_t;
 using Word = uint16_t;
 
+static_assert(sizeof(Byte) == 1);
+static_assert(sizeof(Word) == 2);
+
 union SplitWord {
   Word w;
   struct {
@@ -21,6 +24,8 @@ union SplitWord {
     Byte h; // high
   };
 };
+
+static_assert(sizeof(SplitWord) == sizeof(Word));
 
 // 4 bits
 enum class RegCode : uint8_t {

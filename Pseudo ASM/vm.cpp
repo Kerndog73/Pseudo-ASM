@@ -16,33 +16,60 @@ Register &getReg(Registers &regs, const RegCode code) {
 }
 
 namespace {
-  Word getWord(Registers &regs, const RegByte reg) {
-    return *(&regs.first.w + static_cast<size_t>(reg >> 1));
-  }
-  Byte getByte(Registers &regs, const RegByte reg) {
+  Byte &getByte(Registers &regs, const RegByte reg) {
     return *(&regs.first.l + static_cast<size_t>(reg));
   }
-  void setWord(Registers &regs, const RegByte reg, const Word word) {
-    *(&regs.first.w + static_cast<size_t>(reg >> 1)) = word;
+  Word &getWord(Registers &regs, const RegByte reg) {
+    return *(&regs.first.w + static_cast<size_t>(reg >> 1));
   }
-  void setByte(Registers &regs, const RegByte reg, const Byte byte) {
-    *(&regs.first.l + static_cast<size_t>(reg)) = byte;
+  Byte getSrcByte(Registers &regs, const OpByte op, const SplitWord src) {
+    if ((op & 0b10000) == 0) {
+      return getByte(regs, src.l);
+    } else {
+      return src.l;
+    }
+  }
+  Word getSrcWord(Registers &regs, const OpByte op, const SplitWord src) {
+    if ((op & 0b10000) == 0) {
+      return getWord(regs, src.l);
+    } else {
+      return src.w;
+    }
   }
   
   void movb(VM &vm, const Instruction instr) {
-    if (getSrcOp(instr.op) == SrcOp::REG) {
-      setByte(vm.regs, instr.dst.l, getByte(vm.regs, instr.src.l));
-    } else {
-      setByte(vm.regs, instr.dst.l, instr.src.l);
-    }
+    getByte(vm.regs, instr.dst.l) = getSrcByte(vm.regs, instr.op, instr.src);
+  }
+  void movw(VM &vm, const Instruction instr) {
+    getWord(vm.regs, instr.dst.l) = getSrcWord(vm.regs, instr.op, instr.src);
   }
   
-  void movw(VM &vm, const Instruction instr) {
-    if (getSrcOp(instr.op) == SrcOp::REG) {
-      setWord(vm.regs, instr.dst.l, getWord(vm.regs, instr.src.l));
-    } else {
-      setWord(vm.regs, instr.dst.l, instr.src.l);
-    }
+  Byte *bytePtr(VM &vm, const Register reg) {
+    return vm.mem.get() + reg.w;
+  }
+  Word *wordPtr(VM &vm, const Register reg) {
+    return reinterpret_cast<Word *>(vm.mem.get() + reg.w);
+  }
+  
+  void loadb(VM &vm, const Instruction instr) {
+    getByte(vm.regs, instr.dst.l) = *bytePtr(vm, vm.regs.si);
+  }
+  void loadw(VM &vm, const Instruction instr) {
+    getWord(vm.regs, instr.dst.l) = *wordPtr(vm, vm.regs.si);
+  }
+  
+  void storeb(VM &vm, const Instruction instr) {
+    *bytePtr(vm, vm.regs.di) = getByte(vm.regs, instr.dst.l);
+  }
+  void storew(VM &vm, const Instruction instr) {
+    *wordPtr(vm, vm.regs.di) = getWord(vm.regs, instr.dst.l);
+  }
+  
+  void addb(VM &vm, const Instruction instr) {
+    getByte(vm.regs, instr.dst.l) += getByte(vm.regs, instr.src.l);
+  }
+  void addw(VM &vm, const Instruction instr) {
+    getWord(vm.regs, instr.dst.l) += getWord(vm.regs, instr.src.l);
   }
 }
 
@@ -80,15 +107,9 @@ void VM::execOneInstr() {
       }
   
     INSTR(MOV, mov)
-    case OpCode::LOAD:
-      <#code#>
-      break;
-    case OpCode::STORE:
-      <#code#>
-      break;
-    case OpCode::ADD:
-      <#code#>
-      break;
+    INSTR(LOAD, load)
+    INSTR(STORE, store)
+    INSTR(ADD, add)
     case OpCode::SUB:
       <#code#>
       break;

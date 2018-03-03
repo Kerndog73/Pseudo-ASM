@@ -13,14 +13,7 @@
 #include <cstdint>
 #include "bytecode.hpp"
 
-union Register {
-  Word w;
-  struct {
-    // assumes that this machine is little endian
-    Byte l;
-    Byte h;
-  };
-};
+using Register = SplitWord;
 
 struct Registers {
   union {
