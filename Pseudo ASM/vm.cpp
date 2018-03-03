@@ -16,60 +16,49 @@ Register &getReg(Registers &regs, const RegCode code) {
 }
 
 namespace {
-  Byte &getByte(Registers &regs, const RegByte reg) {
-    return *(&regs.first.l + static_cast<size_t>(reg));
-  }
-  Word &getWord(Registers &regs, const RegByte reg) {
-    return *(&regs.first.w + static_cast<size_t>(reg >> 1));
-  }
-  Byte getSrcByte(Registers &regs, const OpByte op, const SplitWord src) {
-    if ((op & 0b10000) == 0) {
-      return getByte(regs, src.l);
+  template <typename T>
+  T &getReg(Registers &regs, const RegByte reg) {
+    if constexpr (std::is_same_v<T, Byte>) {
+      return *(&regs.first.l + static_cast<size_t>(reg));
     } else {
-      return src.l;
+      return *(&regs.first.w + static_cast<size_t>(reg >> 1));
     }
   }
-  Word getSrcWord(Registers &regs, const OpByte op, const SplitWord src) {
+  template <typename T>
+  T getSrc(Registers &regs, const OpByte op, const SplitWord src) {
     if ((op & 0b10000) == 0) {
-      return getWord(regs, src.l);
+      return getReg<T>(regs, src.l);
     } else {
-      return src.w;
+      if constexpr (std::is_same_v<T, Byte>) {
+        return src.l;
+      } else {
+        return src.w;
+      }
     }
   }
-  
-  void movb(VM &vm, const Instruction instr) {
-    getByte(vm.regs, instr.dst.l) = getSrcByte(vm.regs, instr.op, instr.src);
-  }
-  void movw(VM &vm, const Instruction instr) {
-    getWord(vm.regs, instr.dst.l) = getSrcWord(vm.regs, instr.op, instr.src);
+  template <typename T>
+  T *memPtr(VM &vm, const Register reg) {
+    return reinterpret_cast<T *>(vm.mem.get() + reg.w);
   }
   
-  Byte *bytePtr(VM &vm, const Register reg) {
-    return vm.mem.get() + reg.w;
-  }
-  Word *wordPtr(VM &vm, const Register reg) {
-    return reinterpret_cast<Word *>(vm.mem.get() + reg.w);
+  template <typename T>
+  void mov(VM &vm, const Instruction instr) {
+    getReg<T>(vm.regs, instr.dst.l) = getSrc<T>(vm.regs, instr.op, instr.src);
   }
   
-  void loadb(VM &vm, const Instruction instr) {
-    getByte(vm.regs, instr.dst.l) = *bytePtr(vm, vm.regs.si);
-  }
-  void loadw(VM &vm, const Instruction instr) {
-    getWord(vm.regs, instr.dst.l) = *wordPtr(vm, vm.regs.si);
+  template <typename T>
+  void load(VM &vm, const Instruction instr) {
+    getReg<T>(vm.regs, instr.dst.l) = *memPtr<T>(vm, vm.regs.si);
   }
   
-  void storeb(VM &vm, const Instruction instr) {
-    *bytePtr(vm, vm.regs.di) = getByte(vm.regs, instr.dst.l);
-  }
-  void storew(VM &vm, const Instruction instr) {
-    *wordPtr(vm, vm.regs.di) = getWord(vm.regs, instr.dst.l);
+  template <typename T>
+  void store(VM &vm, const Instruction instr) {
+    *memPtr<T>(vm, vm.regs.di) = getReg<T>(vm.regs, instr.dst.l);
   }
   
-  void addb(VM &vm, const Instruction instr) {
-    getByte(vm.regs, instr.dst.l) += getByte(vm.regs, instr.src.l);
-  }
-  void addw(VM &vm, const Instruction instr) {
-    getWord(vm.regs, instr.dst.l) += getWord(vm.regs, instr.src.l);
+  template <typename T>
+  void add(VM &vm, const Instruction instr) {
+    getReg<T>(vm.regs, instr.dst.l) += getReg<T>(vm.regs, instr.src.l);
   }
 }
 
@@ -101,9 +90,9 @@ void VM::execOneInstr() {
     #define INSTR(ENUM_NAME, FUNC_NAME)                                         \
     case OpCode::ENUM_NAME:                                                     \
       if ((instr.op & 0b10000000) == 0) {                                       \
-        return FUNC_NAME##b(*this, instr);                                      \
+        return FUNC_NAME<Byte>(*this, instr);                                   \
       } else {                                                                  \
-        return FUNC_NAME##w(*this, instr);                                      \
+        return FUNC_NAME<Word>(*this, instr);                                   \
       }
   
     INSTR(MOV, mov)
