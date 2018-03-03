@@ -25,14 +25,14 @@ namespace {
     }
   }
   template <typename T>
-  T getSrc(Registers &regs, const OpByte op, const SplitWord src) {
-    if ((op & 0b10000) == 0) {
-      return getReg<T>(regs, src.l);
+  T getOperand(Registers &regs, const OpByte operation, const SplitWord operand) {
+    if ((operation & 0b10000) == 0) {
+      return getReg<T>(regs, operand.l);
     } else {
       if constexpr (std::is_same_v<T, Byte>) {
-        return src.l;
+        return operand.l;
       } else {
-        return src.w;
+        return operand.w;
       }
     }
   }
@@ -41,25 +41,49 @@ namespace {
     return reinterpret_cast<T *>(vm.mem.get() + reg.w);
   }
   
-  template <typename T>
-  void mov(VM &vm, const Instruction instr) {
-    getReg<T>(vm.regs, instr.dst.l) = getSrc<T>(vm.regs, instr.op, instr.src);
+  #define INSTR(NAME)                                                           \
+    template <typename T>                                                       \
+    void NAME(VM &vm, const Instruction instr)
+  
+  #define DST_REG getReg<T>(vm.regs, instr.dst.l)
+  #define DST_OP getOperand<T>(vm.regs, instr.op, instr.dst)
+  #define SRC_OP getOperand<T>(vm.regs, instr.op, instr.src)
+  #define DST_MEM *memPtr<T>(vm, vm.regs.di)
+  #define SRC_MEM *memPtr<T>(vm, vm.regs.si)
+  
+  INSTR(mov) {
+    DST_REG = SRC_OP;
   }
   
-  template <typename T>
-  void load(VM &vm, const Instruction instr) {
-    getReg<T>(vm.regs, instr.dst.l) = *memPtr<T>(vm, vm.regs.si);
+  INSTR(load) {
+    DST_REG = SRC_MEM;
   }
   
-  template <typename T>
-  void store(VM &vm, const Instruction instr) {
-    *memPtr<T>(vm, vm.regs.di) = getReg<T>(vm.regs, instr.dst.l);
+  INSTR(store) {
+    DST_MEM = DST_REG;
   }
   
-  template <typename T>
-  void add(VM &vm, const Instruction instr) {
-    getReg<T>(vm.regs, instr.dst.l) += getReg<T>(vm.regs, instr.src.l);
+  INSTR(add) {
+    DST_REG += SRC_OP;
   }
+  
+  INSTR(sub) {
+    DST_REG -= SRC_OP;
+  }
+  
+  INSTR(mul) {
+    DST_REG *= SRC_OP;
+  }
+  
+  INSTR(div) {
+    DST_REG /= SRC_OP;
+  }
+  
+  INSTR(mod) {
+    DST_REG %= SRC_OP;
+  }
+  
+  #undef INSTR
 }
 
 VM::VM(const InteruptHandler intHandler)
@@ -99,18 +123,10 @@ void VM::execOneInstr() {
     INSTR(LOAD, load)
     INSTR(STORE, store)
     INSTR(ADD, add)
-    case OpCode::SUB:
-      <#code#>
-      break;
-    case OpCode::MUL:
-      <#code#>
-      break;
-    case OpCode::DIV:
-      <#code#>
-      break;
-    case OpCode::MOD:
-      <#code#>
-      break;
+    INSTR(SUB, sub)
+    INSTR(MUL, mul)
+    INSTR(DIV, div)
+    INSTR(MOD, mod)
     case OpCode::NEG:
       <#code#>
       break;
