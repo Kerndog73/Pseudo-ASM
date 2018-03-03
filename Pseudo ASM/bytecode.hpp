@@ -14,6 +14,14 @@
 using Byte = uint8_t;
 using Word = uint16_t;
 
+union SplitWord {
+  Word w;
+  struct {
+    Byte l; // low
+    Byte h; // high
+  };
+};
+
 // 4 bits
 enum class RegCode : uint8_t {
   IP,
@@ -27,33 +35,22 @@ enum class RegCode : uint8_t {
   D
 };
 
-// 2 bits
-enum class RegSize : uint8_t {
-  // bit 4 is whether this register is a byte
-  WORD = 0b00,
-  LOW  = 0b01,
-  // 0b10
-  HIGH = 0b11
+// 1 bit
+enum class BytePos : uint8_t {
+  LOW,
+  HIGH
 };
 
 using RegByte = Byte;
 
-inline RegByte makeRegByte(const RegCode reg, const RegSize size) {
+inline RegByte makeRegByte(const RegCode reg, const BytePos byte) {
   return
-    static_cast<RegByte>(size) << 4
-    | static_cast<RegByte>(reg)
+    static_cast<RegByte>(reg) << 1
+    | static_cast<RegByte>(byte)
   ;
 }
 
-inline RegSize getRegSize(const RegByte byte) {
-  return static_cast<RegSize>((byte >> 4) & 0b11);
-}
-
-inline RegCode getRegCode(const RegByte byte) {
-  return static_cast<RegCode>(byte & 0b1111);
-}
-
-// 5 bits (26 operations)
+// 5 bits (28 operations)
 enum class OpCode : uint8_t {
   //copies
   MOV, // copy a register or a constant into a register
@@ -67,6 +64,8 @@ enum class OpCode : uint8_t {
   DIV,
   MOD,
   NEG,
+  INC,
+  DEC,
   
   //bits
   AND,
@@ -101,34 +100,49 @@ enum class OpCode : uint8_t {
 };
 
 // 1 bit
+enum class OpSize : uint8_t {
+  BYTE,
+  WORD
+};
+
+// 1 bit
 enum class DstOp : uint8_t {
   REG,
   CON
 };
 
-// 2 bits
+// 1 bit
 enum class SrcOp : uint8_t {
-  NONE,
   REG,
   CON
 };
 
 using OpByte = Byte;
 
-inline OpByte makeOpByte(const DstOp first, const SrcOp sec, const OpCode op) {
+inline OpByte makeOpByte(
+  const OpSize size,
+  const DstOp first,
+  const SrcOp sec,
+  const OpCode op
+) {
   return
-    static_cast<OpByte>(first) << 7
+    static_cast<OpByte>(size) << 7
+    | static_cast<OpByte>(first) << 6
     | static_cast<OpByte>(sec) << 5
     | static_cast<OpByte>(op)
   ;
 }
 
+inline OpSize getOpSize(const OpByte byte) {
+  return static_cast<OpSize>(byte >> 7);
+}
+
 inline DstOp getDstOp(const OpByte byte) {
-  return static_cast<DstOp>(byte >> 7);
+  return static_cast<DstOp>((byte >> 6) & 1);
 }
 
 inline SrcOp getSrcOp(const OpByte byte) {
-  return static_cast<SrcOp>((byte >> 5) & 0b11);
+  return static_cast<SrcOp>((byte >> 5) & 1);
 }
 
 inline OpCode getOpCode(const OpByte byte) {
@@ -137,15 +151,11 @@ inline OpCode getOpCode(const OpByte byte) {
 
 struct Instruction {
   OpByte op;
-  RegByte dst;
-  union {
-    Word w;
-    struct {
-      // assumes little endian
-      Byte l;
-      Byte h;
-    };
-  } src;
+  Byte padding;
+  SplitWord dst;
+  SplitWord src;
 };
+
+static_assert(sizeof(Instruction) == 6);
 
 #endif

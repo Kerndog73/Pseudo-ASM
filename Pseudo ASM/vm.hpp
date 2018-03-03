@@ -23,7 +23,10 @@ union Register {
 };
 
 struct Registers {
-  Register ip;
+  union {
+    Register first;
+    Register ip;
+  };
   Register sp;
   Register bp;
   Register si;
@@ -33,8 +36,6 @@ struct Registers {
   Register c;
   Register d;
 };
-
-Register &getReg(Registers &, RegCode);
 
 struct VM;
 using InteruptHandler = bool (*) (VM &, Byte);

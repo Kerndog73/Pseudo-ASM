@@ -8,37 +8,40 @@
 
 #include "vm.hpp"
 
+static_assert(sizeof(Register) == sizeof(Word));
+static_assert(sizeof(Registers) == 9 * sizeof(Register));
+
 Register &getReg(Registers &regs, const RegCode code) {
-  static_assert(sizeof(Registers) == 9 * sizeof(Register));
-  return *(&regs.ip + static_cast<size_t>(code));
+  return *(&regs.first + static_cast<size_t>(code));
 }
 
 namespace {
-  Word &getWordReg(Registers &regs, const RegByte byte) {
-    return getReg(regs, getRegCode(byte)).w;
+  Word getWord(Registers &regs, const RegByte reg) {
+    return *(&regs.first.w + static_cast<size_t>(reg >> 1));
   }
-  Byte &getByteReg(Registers &regs, const RegByte byte) {
-    const RegSize size = getRegSize(byte);
-    if (size == RegSize::LOW) {
-      return getReg(regs, getRegCode(byte)).l;
+  Byte getByte(Registers &regs, const RegByte reg) {
+    return *(&regs.first.l + static_cast<size_t>(reg));
+  }
+  void setWord(Registers &regs, const RegByte reg, const Word word) {
+    *(&regs.first.w + static_cast<size_t>(reg >> 1)) = word;
+  }
+  void setByte(Registers &regs, const RegByte reg, const Byte byte) {
+    *(&regs.first.l + static_cast<size_t>(reg)) = byte;
+  }
+  
+  void movb(VM &vm, const Instruction instr) {
+    if (getSrcOp(instr.op) == SrcOp::REG) {
+      setByte(vm.regs, instr.dst.l, getByte(vm.regs, instr.src.l));
     } else {
-      return getReg(regs, getRegCode(byte)).h;
+      setByte(vm.regs, instr.dst.l, instr.src.l);
     }
   }
-
-  void mov(VM &vm, const Instruction instr) {
+  
+  void movw(VM &vm, const Instruction instr) {
     if (getSrcOp(instr.op) == SrcOp::REG) {
-      if (getRegSize(instr.dst) == RegSize::WORD) {
-        getWordReg(vm.regs, instr.dst) = getWordReg(vm.regs, instr.src.l);
-      } else {
-        getByteReg(vm.regs, instr.dst) = getByteReg(vm.regs, instr.src.l);
-      }
+      setWord(vm.regs, instr.dst.l, getWord(vm.regs, instr.src.l));
     } else {
-      if (getRegSize(instr.dst) == RegSize::WORD) {
-        getWordReg(vm.regs, instr.dst) = instr.src.w;
-      } else {
-        getByteReg(vm.regs, instr.dst) = instr.src.l;
-      }
+      setWord(vm.regs, instr.dst.l, instr.src.l);
     }
   }
 }
@@ -67,9 +70,17 @@ void VM::execOneInstr() {
   const Instruction instr = *reinterpret_cast<Instruction *>(mem.get() + regs.ip.w);
   const OpCode op = getOpCode(instr.op);
   switch (op) {
-    case OpCode::MOV:
-      return mov(*this, instr);
-    /*case OpCode::LOAD:
+    
+    #define INSTR(ENUM_NAME, FUNC_NAME)                                         \
+    case OpCode::ENUM_NAME:                                                     \
+      if ((instr.op & 0b10000000) == 0) {                                       \
+        return FUNC_NAME##b(*this, instr);                                      \
+      } else {                                                                  \
+        return FUNC_NAME##w(*this, instr);                                      \
+      }
+  
+    INSTR(MOV, mov)
+    case OpCode::LOAD:
       <#code#>
       break;
     case OpCode::STORE:
@@ -93,6 +104,8 @@ void VM::execOneInstr() {
     case OpCode::NEG:
       <#code#>
       break;
+    case OpCode::INC:
+    case OpCode::DEC:
     case OpCode::AND:
       <#code#>
       break;
@@ -149,6 +162,6 @@ void VM::execOneInstr() {
       break;
     case OpCode::POP:
       <#code#>
-      break;*/
+      break;
   }
 }
