@@ -9,7 +9,7 @@
 #include "vm.hpp"
 
 static_assert(sizeof(Register) == sizeof(Word));
-static_assert(sizeof(Registers) == 9 * sizeof(Register));
+static_assert(sizeof(Registers) == 10 * sizeof(Register));
 
 Register &getReg(Registers &regs, const RegCode code) {
   return *(&regs.first + static_cast<size_t>(code));
@@ -51,36 +51,64 @@ namespace {
   #define DST_MEM *memPtr<T>(vm, vm.regs.di)
   #define SRC_MEM *memPtr<T>(vm, vm.regs.si)
   
+  #define SIGNED_L(VAL) reinterpret_cast<std::make_signed_t<T> &>(VAL)
+  #define SIGNED_R(VAL) static_cast<std::make_signed_t<T>>(VAL)
+  
   INSTR(mov) {
     DST_REG = SRC_OP;
   }
-  
   INSTR(load) {
     DST_REG = SRC_MEM;
   }
-  
   INSTR(store) {
-    DST_MEM = DST_REG;
+    DST_MEM = DST_OP;
   }
-  
   INSTR(add) {
     DST_REG += SRC_OP;
   }
-  
   INSTR(sub) {
     DST_REG -= SRC_OP;
   }
-  
   INSTR(mul) {
-    DST_REG *= SRC_OP;
+    SIGNED_L(DST_REG) *= SIGNED_R(SRC_OP);
   }
-  
   INSTR(div) {
-    DST_REG /= SRC_OP;
+    SIGNED_L(DST_REG) /= SIGNED_R(SRC_OP);
   }
-  
   INSTR(mod) {
-    DST_REG %= SRC_OP;
+    SIGNED_L(DST_REG) %= SIGNED_R(SRC_OP);
+  }
+  INSTR(neg) {
+    DST_REG = -DST_REG;
+  }
+  INSTR(inc) {
+    ++DST_REG;
+  }
+  INSTR(dec) {
+    --DST_REG;
+  }
+  INSTR(andi) {
+    DST_REG &= SRC_OP;
+  }
+  INSTR(ori) {
+    DST_REG |= SRC_OP;
+  }
+  INSTR(xori) {
+    DST_REG ^= SRC_OP;
+  }
+  INSTR(shr) {
+    DST_REG >>= SRC_OP;
+  }
+  INSTR(shl) {
+    DST_REG <<= SRC_OP;
+  }
+  INSTR(noti) {
+    DST_REG = ~DST_REG;
+  }
+  INSTR(cmp) {
+    const T first = DST_OP;
+    const T second = SRC_OP;
+    vm.regs.sf.w = (first < second) | ((first == second) << 1);
   }
   
   #undef INSTR
@@ -127,32 +155,16 @@ void VM::execOneInstr() {
     INSTR(MUL, mul)
     INSTR(DIV, div)
     INSTR(MOD, mod)
-    case OpCode::NEG:
-      <#code#>
-      break;
-    case OpCode::INC:
-    case OpCode::DEC:
-    case OpCode::AND:
-      <#code#>
-      break;
-    case OpCode::OR:
-      <#code#>
-      break;
-    case OpCode::XOR:
-      <#code#>
-      break;
-    case OpCode::SHR:
-      <#code#>
-      break;
-    case OpCode::SHL:
-      <#code#>
-      break;
-    case OpCode::NOT:
-      <#code#>
-      break;
-    case OpCode::CMP:
-      <#code#>
-      break;
+    INSTR(NEG, neg)
+    INSTR(INC, inc)
+    INSTR(DEC, dec)
+    INSTR(AND, andi)
+    INSTR(OR, ori)
+    INSTR(XOR, xori)
+    INSTR(SHR, shr)
+    INSTR(SHL, shl)
+    INSTR(NOT, noti)
+    INSTR(CMP, cmp)
     case OpCode::JE:
       <#code#>
       break;

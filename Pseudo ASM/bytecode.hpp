@@ -30,6 +30,7 @@ static_assert(sizeof(SplitWord) == sizeof(Word));
 // 4 bits
 enum class RegCode : uint8_t {
   IP,
+  SF,
   SP,
   BP,
   SI,

@@ -20,6 +20,7 @@ struct Registers {
     Register first;
     Register ip;
   };
+  Register sf;
   Register sp;
   Register bp;
   Register si;
