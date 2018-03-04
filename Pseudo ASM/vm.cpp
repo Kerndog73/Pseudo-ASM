@@ -106,9 +106,64 @@ namespace {
     DST_REG = ~DST_REG;
   }
   INSTR(cmp) {
-    const T first = DST_OP;
-    const T second = SRC_OP;
-    vm.regs.sf.w = (first < second) | ((first == second) << 1);
+    const auto first = SIGNED_R(DST_OP);
+    const auto second = SIGNED_R(SRC_OP);
+    vm.regs.sf.w = ((first == second) << 1) | (first < second);
+  }
+  INSTR(je) {
+    if (vm.regs.sf.w & 0b10) {
+      vm.regs.ip.w = DST_OP;
+    }
+  }
+  INSTR(jne) {
+    if ((vm.regs.sf.w & 0b10) == 0) {
+      vm.regs.ip.w = DST_OP;
+    }
+  }
+  INSTR(jl) {
+    if (vm.regs.sf.w == 0b01) {
+      vm.regs.ip.w = DST_OP;
+    }
+  }
+  INSTR(jle) {
+    if (vm.regs.sf.w == 0b11) {
+      vm.regs.ip.w = DST_OP;
+    }
+  }
+  INSTR(jg) {
+    if (vm.regs.sf.w == 0b00) {
+      vm.regs.ip.w = DST_OP;
+    }
+  }
+  INSTR(jge) {
+    if (vm.regs.sf.w == 0b10) {
+      vm.regs.ip.w = DST_OP;
+    }
+  }
+  INSTR(jmp) {
+    vm.regs.ip.w = DST_OP;
+  }
+  INSTR(call) {
+    vm.regs.sp.w -= 2;
+    *memPtr<Word>(vm, vm.regs.sp) = vm.regs.ip.w;
+    vm.regs.ip.w = DST_OP;
+  }
+  INSTR(ret) {
+    vm.regs.ip.w = *memPtr<Word>(vm, vm.regs.sp);
+    vm.regs.sp.w += 2;
+  }
+  INSTR(inti) {
+    if (vm.intHandler) {
+      vm.halt = vm.intHandler(vm, DST_OP);
+    }
+  }
+  INSTR(push) {
+    vm.regs.sp.w -= sizeof(T);
+    *memPtr<T>(vm, vm.regs.sp) = DST_REG;
+  }
+  INSTR(pop) {
+    DST_REG = *memPtr<T>(vm, vm.regs.sp);
+    vm.regs.sp.w += sizeof(T);
   }
   
   #undef INSTR
@@ -136,6 +191,7 @@ bool VM::loadProgram(const Byte *prog, const size_t size) {
 
 void VM::execOneInstr() {
   const Instruction instr = *reinterpret_cast<Instruction *>(mem.get() + regs.ip.w);
+  ++regs.ip.w;
   const OpCode op = getOpCode(instr.op);
   switch (op) {
     
@@ -165,41 +221,17 @@ void VM::execOneInstr() {
     INSTR(SHL, shl)
     INSTR(NOT, noti)
     INSTR(CMP, cmp)
-    case OpCode::JE:
-      <#code#>
-      break;
-    case OpCode::JNE:
-      <#code#>
-      break;
-    case OpCode::JL:
-      <#code#>
-      break;
-    case OpCode::JLE:
-      <#code#>
-      break;
-    case OpCode::JG:
-      <#code#>
-      break;
-    case OpCode::JGE:
-      <#code#>
-      break;
-    case OpCode::JMP:
-      <#code#>
-      break;
-    case OpCode::CALL:
-      <#code#>
-      break;
-    case OpCode::RET:
-      <#code#>
-      break;
-    case OpCode::INT:
-      <#code#>
-      break;
-    case OpCode::PUSH:
-      <#code#>
-      break;
-    case OpCode::POP:
-      <#code#>
-      break;
+    INSTR(JE, je)
+    INSTR(JNE, jne)
+    INSTR(JL, jl)
+    INSTR(JLE, jle)
+    INSTR(JG, jg)
+    INSTR(JGE, jge)
+    INSTR(JMP, jmp)
+    INSTR(CALL, call)
+    INSTR(RET, ret)
+    INSTR(INT, inti)
+    INSTR(PUSH, push)
+    INSTR(POP, pop)
   }
 }
