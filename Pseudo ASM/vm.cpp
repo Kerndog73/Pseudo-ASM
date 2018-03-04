@@ -248,7 +248,7 @@ void VM::execOneInstr() {
 
 void VM::execUntilExit() {
   halt = false;
-  while (!halt) {
+  do {
     execOneInstr();
-  }
+  } while (!halt);
 }
