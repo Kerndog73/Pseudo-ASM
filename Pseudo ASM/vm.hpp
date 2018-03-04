@@ -45,7 +45,6 @@ struct VM {
   bool loadProgram(const Byte *, size_t);
 
   void execOneInstr();
-  void execNInstrs(size_t);
   void execUntilExit();
 
   std::unique_ptr<Byte []> mem;

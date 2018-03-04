@@ -157,6 +157,9 @@ namespace {
       vm.halt = vm.intHandler(vm, DST_OP);
     }
   }
+  INSTR(hlt) {
+    vm.halt = true;
+  }
   INSTR(push) {
     vm.regs.sp.w -= sizeof(T);
     *memPtr<T>(vm, vm.regs.sp) = DST_REG;
@@ -202,6 +205,12 @@ void VM::execOneInstr() {
       } else {                                                                  \
         return FUNC_NAME<Word>(*this, instr);                                   \
       }
+    #define INSTR_B(ENUM_NAME, FUNC_NAME)                                       \
+    case OpCode::ENUM_NAME:                                                     \
+      return FUNC_NAME<Byte>(*this, instr);
+    #define INSTR_W(ENUM_NAME, FUNC_NAME)                                       \
+    case OpCode::ENUM_NAME:                                                     \
+      return FUNC_NAME<Word>(*this, instr);
   
     INSTR(MOV, mov)
     INSTR(LOAD, load)
@@ -227,11 +236,19 @@ void VM::execOneInstr() {
     INSTR(JLE, jle)
     INSTR(JG, jg)
     INSTR(JGE, jge)
-    INSTR(JMP, jmp)
-    INSTR(CALL, call)
-    INSTR(RET, ret)
-    INSTR(INT, inti)
+    INSTR_W(JMP, jmp)
+    INSTR_W(CALL, call)
+    INSTR_W(RET, ret)
+    INSTR_B(INT, inti)
+    INSTR_W(HLT, hlt)
     INSTR(PUSH, push)
     INSTR(POP, pop)
+  }
+}
+
+void VM::execUntilExit() {
+  halt = false;
+  while (!halt) {
+    execOneInstr();
   }
 }
