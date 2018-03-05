@@ -56,7 +56,7 @@ inline RegByte makeRegByte(const RegCode reg, const BytePos byte) {
   ;
 }
 
-// 5 bits (29 operations)
+// 5 bits (31 operations)
 enum class OpCode : uint8_t {
   //copies
   MOV, // copy a register or a constant into a register

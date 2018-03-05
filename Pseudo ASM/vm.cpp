@@ -106,7 +106,7 @@ namespace {
     DST_REG = ~DST_REG;
   }
   INSTR(cmp) {
-    const auto first = SIGNED_R(DST_OP);
+    const auto first = SIGNED_R(DST_REG);
     const auto second = SIGNED_R(SRC_OP);
     vm.regs.sf.w = ((first == second) << 1) | (first < second);
   }
@@ -169,6 +169,13 @@ namespace {
     vm.regs.sp.w += sizeof(T);
   }
   
+  #undef SIGNED_R
+  #undef SIGNED_L
+  #undef SRC_MEM
+  #undef DST_MEM
+  #undef SRC_OP
+  #undef DST_OP
+  #undef DST_REG
   #undef INSTR
 }
 
@@ -243,6 +250,10 @@ void VM::execOneInstr() {
     INSTR_W(HLT, hlt)
     INSTR(PUSH, push)
     INSTR(POP, pop)
+    
+    #undef INSTR_W
+    #undef INSTR_B
+    #undef INSTR
   }
 }
 
