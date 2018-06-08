@@ -24,9 +24,19 @@ namespace {
       return *(&regs.first.w + static_cast<size_t>(reg >> 1));
     }
   }
+  /*template <typename T>
+  T getConstant() {
+    if constexpr (std::is_same_v<T, Byte>) {
+        return operand.l;
+      } else {
+        return operand.w;
+      }
+
+  }*/
+  
   template <typename T>
   T getOperand(Registers &regs, const OpByte operation, const SplitWord operand) {
-    if ((operation & 0b10000) == 0) {
+    if ((operation & 0b100000) == 0) {
       return getReg<T>(regs, operand.l);
     } else {
       if constexpr (std::is_same_v<T, Byte>) {
@@ -201,7 +211,7 @@ bool VM::loadProgram(const Byte *prog, const size_t size) {
 
 void VM::execOneInstr() {
   const Instruction instr = *reinterpret_cast<Instruction *>(mem.get() + regs.ip.w);
-  ++regs.ip.w;
+  regs.ip.w += sizeof(Instruction);
   const OpCode op = getOpCode(instr.op);
   switch (op) {
     

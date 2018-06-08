@@ -26,9 +26,10 @@ namespace {
   template <typename Int>
   void pushNum(std::vector<Byte> &bytes, const Int num) {
     union {
-      Int number = num;
+      Int number;
       Byte numBytes[sizeof(Int)];
     };
+    number = num;
     bytes.insert(bytes.end(), std::cbegin(numBytes), std::cend(numBytes));
   }
   
@@ -41,13 +42,13 @@ namespace {
     
     char *end;
     const long n = strtol(str.data(), &end, getBase(str.back()));
-    if (n == 0 && end[-1] != 0) {
+    if (n == 0 && end[-1] != '0') {
       throw "Invalid number literal"sv;
     }
     if (SLimits::min() <= n && n <= SLimits::max()) {
-      pushNum(bytes, static_cast<Signed>(n));
+      *reinterpret_cast<Signed *>(bytes) = static_cast<Signed>(n);
     } else if (0 <= n && n <= ULimits::max()) {
-      pushNum(bytes, static_cast<Unsigned>(n));
+      *reinterpret_cast<Unsigned *>(bytes) = static_cast<Unsigned>(n);
     } else {
       throw "Number literal out of range"sv;
     }
@@ -130,9 +131,8 @@ namespace {
     const std::string_view *regName = std::find(
       std::cbegin(REGS), std::cend(REGS), regStr
     );
-    const RegCode regCode = static_cast<RegCode>(regName - REGS);
     if (regName != std::cend(REGS)) {
-      byte = makeRegByte(regCode, pos);
+      byte = makeRegByte(static_cast<RegCode>(regName - REGS), pos);
       size = opSize;
       return true;
     } else {
@@ -156,16 +156,19 @@ namespace {
     const OpCode opCode = static_cast<OpCode>(instrName - INSTRS);
     Instruction instr = {};
     
-    for (int o = 0; o != 2; ++o) {
-      ++t;
+    ++t;
+    for (int o = 0; t->type != TokenType::END_OP; ++o, ++t) {
+      if (o == 2) {
+        throw "Too many operands"sv;
+      }
+      
       SplitWord &operand = (&instr.dst)[o];
-      if (t->type == TokenType::END_OP) {
-        instr.op = makeOpByte(opSize, dstOp, srcOp, opCode);
-        checkInstr(instr);
-        pushNum(bytes, instr);
-        return;
-      } else if (isdigit(t->str.front())) {
-        dstOp = DstOp::CON;
+      if (isdigit(t->str.front())) {
+        if (o == 0) {
+          dstOp = DstOp::CON;
+        } else if (o == 1) {
+          srcOp = SrcOp::CON;
+        }
         parseNumLiteral<Word>(&operand.l, t->str);
       } else {
         if (!parseReg(operand.l, opSize, t->str)) {
@@ -178,7 +181,9 @@ namespace {
         }
       }
     }
-    throw "Too many operands"sv;
+    instr.op = makeOpByte(opSize, dstOp, srcOp, opCode);
+    checkInstr(instr);
+    pushNum(bytes, instr);
   }
 }
 
@@ -199,7 +204,7 @@ std::vector<Byte> compile(const std::vector<Token> &tokens) {
   
   for (auto t = tokens.cbegin(); t != tokens.cend(); ++t) {
     if (t->type == TokenType::INSTRUCTION) {
-      try {
+      //try {
         if (t->str == "db") {
           pushBytes(bytes, t);
         } else if (t->str == "dw") {
@@ -207,9 +212,9 @@ std::vector<Byte> compile(const std::vector<Token> &tokens) {
         } else {
           pushInstr(bytes, t, labels);
         }
-      } catch (std::string_view &e) {
-        throw std::runtime_error(e.data());
-      }
+      //} catch (std::string_view &e) {
+      //  throw std::runtime_error(e.data());
+      //}
     }
   }
   
